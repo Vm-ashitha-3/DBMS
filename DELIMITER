@@ -1,0 +1,172 @@
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database ashitha;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> use ashitha;
+Database changed
+mysql> create table phonebook(pname varchar(20) , mobilenumber varchar(10));
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> create table deletephonebook(pname varchar(20),mobilenumber varchar(20),modifieddate date);
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> desc phonebook;
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| pname        | varchar(20) | YES  |     | NULL    |       |
+| mobilenumber | varchar(10) | YES  |     | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+2 rows in set (0.03 sec)
+
+mysql> desc deletephonebook;
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| pname        | varchar(20) | YES  |     | NULL    |       |
+| mobilenumber | varchar(20) | YES  |     | NULL    |       |
+| modifieddate | date        | YES  |     | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into phonebook values("aswin","9390675845");
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into phonebook values("ashitha","9995294757");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into phonebook values("wafa","9387370034");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into phonebook values("raniya","9387339034");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into phonebook values("sana","9387669034");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into phonebook values("niba","9987669034");
+Query OK, 1 row affected (0.01 sec)
+
+mysql> desc phonebook;
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| pname        | varchar(20) | YES  |     | NULL    |       |
+| mobilenumber | varchar(10) | YES  |     | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> show phonebook;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'phonebook' at line 1
+mysql> select*from phonebook;
++---------+--------------+
+| pname   | mobilenumber |
++---------+--------------+
+| aswin   | 9390675845   |
+| ashitha | 9995294757   |
+| wafa    | 9387370034   |
+| raniya  | 9387339034   |
+| sana    | 9387669034   |
+| niba    | 9987669034   |
++---------+--------------+
+6 rows in set (0.00 sec)
+
+mysql> DELIMITER
+ERROR:
+DELIMITER must be followed by a 'delimiter' character or string
+mysql> DELIMITER //
+mysql> CREATE TRIGGER ABHI AFTER DELETE ON phonebook
+    -> BEGIN
+    -> INSERT INTO  deletephonebook(pname,mobilenumber,modifieddate) values(OLD.pname,OLD.mobilenumber,sysdate());
+    -> end
+    -> END;
+    -> //
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'BEGIN
+INSERT INTO  deletephonebook(pname,mobilenumber,modifieddate) values(OLD.p' at line 2
+mysql> DELIMITER //
+mysql> create trigger oldnumber after delete on deletephonebook for each row
+    -> BEGIN
+    -> insert into deletephonebook(pname,mobilenumber,modifieddate) values(OLD.pname,OLD.mobilenumber,sysdate());
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> desc phonebook;
+    -> delete from phonebook where pname='wafa';
+    -> select * from phonebook;
+    -> //
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| pname        | varchar(20) | YES  |     | NULL    |       |
+| mobilenumber | varchar(10) | YES  |     | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
++---------+--------------+
+| pname   | mobilenumber |
++---------+--------------+
+| aswin   | 9390675845   |
+| ashitha | 9995294757   |
+| raniya  | 9387339034   |
+| sana    | 9387669034   |
+| niba    | 9987669034   |
++---------+--------------+
+5 rows in set (0.01 sec)
+
+mysql> delete from phonebook where pname='aswin';
+    -> //
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from phonebook;
+    -> //
++---------+--------------+
+| pname   | mobilenumber |
++---------+--------------+
+| ashitha | 9995294757   |
+| raniya  | 9387339034   |
+| sana    | 9387669034   |
+| niba    | 9987669034   |
++---------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from deletephonebook;
+    -> //
+Empty set (0.00 sec)
+
+mysql> delete from phonebook where pname='raniya';
+    -> //
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from phonebook;
+    -> //
++---------+--------------+
+| pname   | mobilenumber |
++---------+--------------+
+| ashitha | 9995294757   |
+| sana    | 9387669034   |
+| niba    | 9987669034   |
++---------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from deletephonebook;
+    -> //
+Empty set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER mobilenumber after update on phonebook for each row
+    -> begin
+    -> insert into deletephonebook(pname,mobilenumber,modifieddate) values(OLD.pname,OLD.mobilenumber,sysdate());
+    -> end;
+    -> //
+Query OK, 0 rows affected (0.01 sec)
